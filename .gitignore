@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+
+# Data cache
+data/cache/
+data/raw/
+data/processed/
+*.log
+/tmp/
+
+# Env
+.env
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Docker
+docker-data/
