@@ -1,0 +1,8 @@
+# local toolchain + build intermediates
+.venv/
+__pycache__/
+satire-short/render/
+satire-short/audio/wav/
+satire-short/audio/*.wav
+satire-short/build/
+satire-short/v1_archive/
