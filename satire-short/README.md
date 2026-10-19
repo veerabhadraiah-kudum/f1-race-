@@ -17,9 +17,9 @@ Telugu voiceover · Telugu + English on-screen captions · original music bed.
 
 | File | What it is |
 |---|---|
-| `out/ap-politics-roast-v2.mp4` | The finished short — 1080×1920, 30 fps, H.264 + AAC, −14 LUFS, 20 MB |
-| `out/cover.jpg` | 1080×1920 cover / first-frame still |
-| `out/captions.srt` | Telugu + English subtitles, timed to the finished cut |
+| `video/ap-politics-roast-v2.mp4` | The finished short — 1080×1920, 30 fps, H.264 + AAC, −14 LUFS, 20 MB |
+| `video/cover.jpg` | 1080×1920 cover / first-frame still |
+| `video/captions.srt` | Telugu + English subtitles, timed to the finished cut |
 | `POST_KIT.md` | Titles, captions, hashtags, platform notes + the Jagan-episode playbook |
 | `script.md` | Full script, timecodes, translations, editorial guardrails |
 | `assets/` | The four cartoon scenes |
@@ -69,12 +69,12 @@ python3 -m venv .venv
 # preview stills / full render
 cd satire-short
 ../.venv/bin/python build_video.py --stills
-../.venv/bin/python build_video.py     # -> out/ap_politics_roast.mp4 (master)
+../.venv/bin/python build_video.py     # -> video/ap_politics_roast.mp4 (master)
 
 # publish encode (loudness + size)
 FF=$(.venv/bin/python -c "import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())")
-$FF -i out/ap_politics_roast.mp4 -c:v libx264 -preset slow -crf 26 -tune animation \
-    -af loudnorm=I=-14:TP=-1.5:LRA=9 -c:a aac -b:a 192k out/ap-politics-roast-v2.mp4
+$FF -i video/ap_politics_roast.mp4 -c:v libx264 -preset slow -crf 26 -tune animation \
+    -af loudnorm=I=-14:TP=-1.5:LRA=9 -c:a aac -b:a 192k video/ap-politics-roast-v2.mp4
 ```
 
 ### Editing the jokes

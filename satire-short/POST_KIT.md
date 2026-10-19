@@ -1,7 +1,7 @@
 # POST KIT — ఏపీ రాజకీయ రోస్ట్ (AP Politics Roast, v2)
 
-**File to upload:** `out/ap-politics-roast-v2.mp4` — 1080×1920, 47.7 s, 30 fps,
-−14 LUFS, 20 MB. Subs: `out/captions.srt`. Cover: `out/cover.jpg`.
+**File to upload:** `video/ap-politics-roast-v2.mp4` — 1080×1920, 47.7 s, 30 fps,
+−14 LUFS, 20 MB. Subs: `video/captions.srt`. Cover: `video/cover.jpg`.
 
 ---
 
@@ -61,8 +61,8 @@ endorsement. Laugh freely, vote seriously.
 
 | Platform | Notes |
 |---|---|
-| Instagram Reels | Upload 1080×1920; captions are already burned in, so leave IG captions off. Cover `out/cover.jpg`. |
-| YouTube Shorts | Title + `#Shorts`; upload `out/captions.srt` as Telugu subtitles. Put the disclaimer in the description. |
+| Instagram Reels | Upload 1080×1920; captions are already burned in, so leave IG captions off. Cover `video/cover.jpg`. |
+| YouTube Shorts | Title + `#Shorts`; upload `video/captions.srt` as Telugu subtitles. Put the disclaimer in the description. |
 | Facebook / WhatsApp | 20 MB fits WhatsApp's 64 MB limit as-is; the file is also under FB's 1080p ceiling. |
 | X / Twitter | Trim the first 20 s if you need a tighter clip; scene 2 is the strongest standalone. |
 
@@ -116,5 +116,5 @@ what makes episode 5 easier to sell than episode 1.
 - [ ] Edit the `SCENES` list in `build_video.py`
 - [ ] `python build_video.py --stills` → check frames
 - [ ] `python build_video.py` → master, then the CRF 26 / loudnorm publish pass
-- [ ] Regenerate `out/captions.srt` timings (scene length = VO + 1.05 s)
+- [ ] Regenerate `video/captions.srt` timings (scene length = VO + 1.05 s)
 - [ ] Keep the disclaimer on the title card, HUD chip and end card

@@ -31,7 +31,7 @@ ROOT = Path(__file__).resolve().parent
 FONTS = ROOT / "fonts"
 AUDIO = ROOT / "audio"
 BUILD = ROOT / "build"
-OUT = ROOT / "out"
+OUT = ROOT / "video"
 FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
 
 W, H, FPS, SR = 1080, 1920, 30, 48000
