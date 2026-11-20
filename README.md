@@ -157,6 +157,14 @@ The film is cut to its narration, in this order:
 `python build.py audio` also prints a **fit report** — every clip against its
 window. It is currently 10/10.
 
+The last scene ends on a closing card, which needs more room than the generic
+0.95 s tail after the final line. `tools/fit_narration.py` carries an `OUTRO`
+allowance for exactly that, so the extra seconds survive regeneration instead of
+being hand-edited into `_timing.py`. The card itself is keyed off the **real**
+scene duration (`CARD_HOLD`), never authored seconds: the retime warp compresses
+the authored tail, and keying it that way once left the card fully lit for
+barely a second.
+
 A quiet **timecode reference** (a tick per second, a marker on every cue) is
 mixed under the voice at low level. It makes sync verifiable by ear and by
 analysis, and it documents where each line belongs; remove it with
@@ -190,7 +198,7 @@ Exact arithmetic, shown step by step:
 with its own bar, the bias token slides in, `z` travels into the sigmoid curve to
 the operating point, and the output node locks the value.
 
-### 4 · The mathematics (15.0 s)
+### 4 · The mathematics (16.8 s)
 Four equations arrive in sequence; as a term highlights, a dashed leader binds it
 to the object it describes — loss surface, descent path, sigmoid curve — and the
 object is named in the term's colour. It closes on the training loop and a title
@@ -230,7 +238,7 @@ first scene because the cross-dissolves shorten the assembled timeline by
 ## Tests
 
 ```bash
-python tests/test_engine.py        # 9 checks, ~20 s
+python tests/test_engine.py        # 13 checks, ~20 s
 ```
 
 Each test encodes a defect that was found by looking at rendered output:
@@ -246,6 +254,10 @@ Each test encodes a defect that was found by looking at rendered output:
 | `test_camera_framing_keeps_the_subject_in_frame` | auto-framing must not clip the subject |
 | `test_depth_sorting_puts_near_geometry_last` | painter's-algorithm ordering of the surface quads |
 | `test_frame_rendering_is_deterministic` | frames are a pure function of time, but consecutive frames differ (it must animate) |
+| `test_stale_frames_are_trimmed_before_encoding` | shortening the timings left old tail frames on disk; `encode` globs `f%05d.png`, so every scene silently grew and the film overran its narration |
+| `test_mux_pads_narration_instead_of_clipping_picture` | `-shortest` trimmed the *picture* to the audio bed, cutting the closing card off mid-hold |
+| `test_closing_card_holds_long_enough_to_read` | the card fade was keyed to authored seconds, which the retime warp compresses, so the card was fully lit for barely a second |
+| `test_film_length_matches_the_narration_timeline` | the assembled length is computed in two places; if they drift, the audio bed and the picture disagree |
 
 ## Repository layout
 

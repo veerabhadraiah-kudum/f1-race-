@@ -51,6 +51,11 @@ class EquationsAndTerms(Retimed, Scene):
     chapter = 4
     chapter_total = 4
     duration = 13.6
+    # How long the closing card stays on screen, fully lit, before the film ends.
+    # Both the card and the chrome fade are keyed off the *real* scene duration:
+    # the retime warp compresses the authored tail, so expressing them in
+    # authored seconds gave the card barely a second of screen time.
+    CARD_HOLD = 2.2
 
     beats = {
         "f1": Beat("f1", 0.3, 3.5, "objective"),
@@ -107,7 +112,7 @@ class EquationsAndTerms(Retimed, Scene):
                 opacity=0.86 * a)
 
     def draw_header(self, cv, t):
-        a = remap(t, 0.4, 1.4, "out_quad")
+        a = remap(t, 0.4, 1.4, "out_quad") * self._chrome(t)
         y = HEADER_Y + 46
         cv.raw(f'<rect x="96" y="{y-28}" width="2.6" height="32" fill="{C.cyan}" opacity="{0.9*a:.3f}"/>')
         cv.text(114, y, "THE MATHEMATICS", size=28, color=C.ink, weight=600, tracking=0.04, opacity=a)
@@ -115,6 +120,20 @@ class EquationsAndTerms(Retimed, Scene):
                 weight=400, tracking=0.06, opacity=0.9 * a)
 
     # ----------------------------------------------------------------- render
+    @property
+    def card_at(self) -> float:
+        """Real second at which the closing card is fully lit."""
+        return self.duration - self.CARD_HOLD
+
+    @property
+    def chrome_fade_at(self) -> float:
+        """HUD + caption start leaving here, so the card arrives on a clean frame."""
+        return self.card_at - 1.15
+
+    def _chrome(self, t: float) -> float:
+        """1 while the film's frame furniture is live, 0 behind the closing card."""
+        return 1.0 - remap(t, self.chrome_fade_at, self.chrome_fade_at + 0.7, "in_out_sine")
+
     # ------------------------------------------------------------- retime
     def tw(self, t_authored: float) -> float:
         """Authored second -> narration-timed real second."""
@@ -128,7 +147,9 @@ class EquationsAndTerms(Retimed, Scene):
         w1 = window(t, 0.4, 3.6)
         w2 = window(t, 3.4, 6.8)
         w3 = window(t, 6.6, 10.0)
-        w4 = window(t, 9.8, 13.7)
+        # the loop diagram hands over to the closing veil rather than fading out
+        # early and leaving an empty beat before the card lands
+        w4 = window(t, 9.8, self.card_at - 0.15)
         if w1 > 0.01:
             self.stage_loss(cv, t, w1)
         if w2 > 0.01:
@@ -374,13 +395,15 @@ class EquationsAndTerms(Retimed, Scene):
 
     def _closing_veil(self, cv, t):
         """Full-frame fade to near-black at the very end, under the closing card."""
-        a = remap(self.T(t), self.tw(13.3), self.tw(14.3), "in_out_sine")
+        s = self.card_at
+        a = remap(t, s - 1.00, s - 0.35, "in_out_sine")
         if a > 0.01:
             cv.rect(0, 0, WIDTH, HEIGHT, fill="#050a12", opacity=0.80 * a)
 
     def draw_closing_card(self, cv, t):
         """The film's last beat: title + a single line, over a quiet stage."""
-        a = remap(self.T(t), self.tw(13.4), self.tw(14.3), "out_quad")
+        s = self.card_at
+        a = remap(t, s - 0.90, s - 0.25, "out_quad")
         if a <= 0.01:
             return
         # the veil is emitted first in render() (see _closing_veil) so every
@@ -388,7 +411,7 @@ class EquationsAndTerms(Retimed, Scene):
         cx = WIDTH / 2
         cv.text(cx, 452, "MATHEMATICS BEHIND AI", size=13, color=C.cyan, weight=600,
                 tracking=0.36, anchor="middle", opacity=0.9 * a)
-        rp = remap(self.T(t), self.tw(13.6), self.tw(14.5), "in_out_cubic")
+        rp = remap(t, s - 0.70, s + 0.10, "in_out_cubic")
         cv.line(cx - 118 * rp, 486, cx + 118 * rp, 486, stroke=C.cyan, sw=1.6,
                 opacity=0.55 * a)
         cv.text(cx, 580, "Every model is this loop.", size=58, color=C.ink,

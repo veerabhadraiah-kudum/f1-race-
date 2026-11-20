@@ -144,6 +144,28 @@ class Canvas:
         self.layers.append(svg)
         return self
 
+    # ------------------------------------------------------- group opacity
+    def mark(self) -> int:
+        """Remember the current end of the layer list (see `fade_since`)."""
+        return len(self.layers)
+
+    def fade_since(self, index: int, opacity: float) -> "Canvas":
+        """Wrap every layer added after `index` in a group with `opacity`.
+
+        SVG has no per-layer alpha stack, but a `<g opacity>` around a run of
+        elements composites them as one unit — exactly what fading the HUD and
+        caption out over a closing card needs.
+        """
+        if opacity >= 0.999 or index >= len(self.layers):
+            return self
+        if opacity <= 0.001:
+            del self.layers[index:]
+            return self
+        group = f'<g opacity="{opacity:.3f}">' + "".join(self.layers[index:]) + "</g>"
+        del self.layers[index:]
+        self.layers.append(group)
+        return self
+
     # ------------------------------------------------------------- compose
     def svg(self, defs_extra: str = "") -> str:
         """

@@ -33,6 +33,13 @@ GAP = 0.45           # breathing room between lines
 TAIL = 0.95          # room for the final frame to land
 MIN_LINE = 2.6       # never let a caption flash by faster than this
 
+# Scenes that end on a closing card need more than the generic TAIL: the film's
+# last words must land, then the card has to fade up *and* hold long enough to
+# be read. Extra seconds appended after the last cue, per scene.
+OUTRO = {
+    "s4_equations": 1.8,
+}
+
 
 def build_plan() -> dict:
     plan = {}
@@ -55,11 +62,13 @@ def build_plan() -> dict:
             t += win + GAP
         # compact: the last line needs room to breathe, not a second of silence
         last_end = cues[-1]["t_out"] if cues else 2.0
-        total = round(max(last_end + TAIL, sum(lengths) + LEAD_IN + GAP * (n - 1) + TAIL), 2)
+        outro = OUTRO.get(sc.name, 0.0)
+        total = round(max(last_end + TAIL, sum(lengths) + LEAD_IN + GAP * (n - 1) + TAIL) + outro, 2)
         plan[sc.name] = {
             "cues": cues,
             "duration": total,
             "was": round(sc.duration, 2),
+            "outro": outro,
             "n": n,
         }
     return plan

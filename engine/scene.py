@@ -167,9 +167,18 @@ class Scene:
         cv = Canvas(background=False)
         self.draw_defs(cv)
         self.render(cv, t)
+
+        # End-of-film chrome fade.  A scene that dissolves into a closing card
+        # sets `chrome_fade_at`; the HUD and caption layer added below are then
+        # scored as one group, so they fade out instead of ghosting over the
+        # card (the card itself is drawn inside render(), i.e. beneath this).
+        chrome = cv.mark()
         self.draw_hud(cv, t)
         if self.cues:
             self.draw_caption(cv, t)
+        oa = getattr(self, "chrome_fade_at", None)
+        if oa is not None:
+            cv.fade_since(chrome, 1.0 - _fade_in(t, oa, oa + 0.7))
         return cv
 
     def frame_array(self, t: float, scale: float = 1.0, composed: bool = True):

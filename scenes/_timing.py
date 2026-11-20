@@ -30,7 +30,7 @@ TIMING = {
         ],
     },
     "s4_equations": {
-        "duration": 15.0,
+        "duration": 16.8,
         "cues": [
             (0.85, 4.27),
             (4.72, 9.67),

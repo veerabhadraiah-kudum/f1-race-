@@ -63,6 +63,30 @@ def _render_one(args):
     return out_path
 
 
+def _drop_stale_frames(out_dir: str, count: int, prefix: str = "f"):
+    """Delete frames left over from an earlier, longer render.
+
+    `encode` feeds FFmpeg a `f%05d.png` glob, so a scene that used to be longer
+    keeps its old tail on disk and silently re-appears in the picture: the
+    encoded scene is too long, the assembled film runs past the narration, and
+    the muxer clips the ending.  Trimming the tail here makes the frame
+    directory match the scene's real duration every time.
+    """
+    import re
+    pat = re.compile(rf"^{re.escape(prefix)}(\d+)\.png$")
+    removed = 0
+    for name in os.listdir(out_dir):
+        m = pat.match(name)
+        if m and int(m.group(1)) >= count:
+            try:
+                os.remove(os.path.join(out_dir, name))
+                removed += 1
+            except OSError:
+                pass
+    if removed:
+        print(f"  trimmed {removed} stale frame(s) from {out_dir}")
+
+
 def render_frames(
     scene_factory: Callable[[], object],
     times: list[float],
@@ -73,6 +97,7 @@ def render_frames(
     prefix: str = "f",
 ):
     os.makedirs(out_dir, exist_ok=True)
+    _drop_stale_frames(out_dir, len(times), prefix)
     workers = workers or max(1, min(4, (os.cpu_count() or 2)))
     tasks = [
         (scene_factory, t, os.path.join(out_dir, f"{prefix}{i:05d}.png"), scale)
@@ -146,12 +171,19 @@ def encode(
 
 
 def mux_audio(video: str, audio: str, out: str, gain_db: float = 0.0):
-    """Replace/attach an audio track without re-encoding video."""
+    """Attach a narration track without re-encoding video.
+
+    The picture is the authority on duration: the narration is padded with
+    silence to the end of the video (`apad`) before `-shortest` is applied.
+    Without the pad a bed even a fraction shorter than the picture silently
+    clips the last frames — which is how the closing card once lost its hold.
+    """
     exe = ffmpeg_exe()
     cmd = [exe, "-y", "-hide_banner", "-loglevel", "error", "-i", video, "-i", audio,
            "-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k"]
-    if gain_db:
-        cmd += ["-af", f"volume={gain_db}dB"]
+    chain = [f"volume={gain_db}dB"] if gain_db else []
+    chain.append("apad")
+    cmd += ["-af", ",".join(chain)]
     cmd += ["-shortest", "-movflags", "+faststart", out]
     p = subprocess.run(cmd, capture_output=True, text=True)
     if p.returncode != 0:

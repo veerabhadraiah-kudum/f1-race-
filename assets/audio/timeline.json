@@ -64,7 +64,7 @@
       "name": "s4_equations",
       "title": "The mathematics",
       "start": 39.83,
-      "duration": 15.0,
+      "duration": 16.8,
       "cues": [
         {
           "t_in": 40.68,
@@ -84,6 +84,6 @@
       ]
     }
   ],
-  "total": 54.83,
+  "total": 56.63,
   "fade": 0.55
 }

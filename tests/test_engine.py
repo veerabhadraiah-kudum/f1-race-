@@ -172,6 +172,84 @@ def test_frame_rendering_is_deterministic():
     assert not np.array_equal(a, c), "consecutive frames should differ (it must animate)"
 
 
+def test_stale_frames_are_trimmed_before_encoding():
+    """
+    A scene directory must never keep frames past the scene's duration.
+
+    Bug: shortening the scene timings left six old tail frames per scene on
+    disk. `encode` globs f%05d.png, so each scene grew 0.2s, the film ran to
+    55.67s against a 54.83s narration bed, and the muxer clipped the ending —
+    the closing card lost its hold.
+    """
+    import tempfile
+    from engine.render import _drop_stale_frames
+
+    with tempfile.TemporaryDirectory() as d:
+        for i in range(10):
+            open(os.path.join(d, f"f{i:05d}.png"), "wb").close()
+        _drop_stale_frames(d, 6)
+        left = sorted(f for f in os.listdir(d) if f.endswith(".png"))
+        assert left == [f"f{i:05d}.png" for i in range(6)], left
+
+
+def test_mux_pads_narration_instead_of_clipping_picture():
+    """
+    Attaching narration must not shorten the picture.
+
+    Bug: `-shortest` truncated the video to the audio bed's length, so a bed
+    even slightly short of the film chopped the final frames off.
+    """
+    import inspect
+    from engine import render
+
+    src = inspect.getsource(render.mux_audio)
+    assert "apad" in src, "narration must be padded to the picture length"
+    assert "-c:v" in src and "copy" in src, "muxing must not re-encode video"
+
+
+def test_closing_card_holds_long_enough_to_read():
+    """
+    The film's last card must hold, fully lit, before the picture ends.
+
+    Bug: the card fade was authored in *scene* seconds, but the retime warp
+    compresses the authored tail, so the card only reached full brightness
+    ~1.3s before the end — too brief to read.
+    """
+    from scenes.s4_equations import EquationsAndTerms
+
+    sc = EquationsAndTerms()
+    assert sc.card_at <= sc.duration - 2.0, (
+        f"card is fully lit only {sc.duration - sc.card_at:.2f}s before the end"
+    )
+    # chrome must be gone no later than the moment the card is fully lit
+    assert sc.chrome_fade_at + 0.7 <= sc.card_at + 1e-6, "HUD lingers over the card"
+    assert sc._chrome(sc.card_at) <= 0.01, "frame furniture visible behind the card"
+
+
+def test_film_length_matches_the_narration_timeline():
+    """
+    The assembled length used for the audio bed must equal the assembled
+    picture. Two places compute it (the cross-dissolve formula in film.py and
+    build_timeline); if they drift, the bed and the picture disagree and
+    `-shortest` cuts one of them.
+    """
+    from engine.film import load_all
+    from engine.narration import build_timeline
+
+    classes = load_all()
+    fade = 0.55
+    by_formula = sum(c().duration for c in classes) - fade * (len(classes) - 1)
+    tl = build_timeline(classes, fade=fade)
+    assert abs(tl["total"] - by_formula) < 1e-6, (
+        f"timeline total {tl['total']:.3f}s != picture {by_formula:.3f}s"
+    )
+    # every scene must end before the film does
+    for sc in tl["scenes"]:
+        assert sc["start"] + sc["duration"] <= tl["total"] + 1e-6, sc["name"]
+        for cue in sc["cues"]:
+            assert cue["t_out"] <= tl["total"] + 1e-6, (sc["name"], cue["text"])
+
+
 if __name__ == "__main__":
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     failed = 0
