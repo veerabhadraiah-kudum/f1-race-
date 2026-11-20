@@ -1,0 +1,27 @@
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# node (only used for MathJax + font extraction at setup time)
+tools/node_modules/
+tools/package.json
+tools/package-lock.json
+
+# render outputs are reproducible artifacts, not source
+out/
+assets/math/*.json
+assets/audio/*.__dec__.wav
+
+# keep these tracked:
+#   assets/fonts/*.woff2     (OFL, vendored so the build is reproducible)
+#   assets/audio/clips/*     (narration source clips)
+#   assets/audio/timeline.json
+
+# stray root-level node modules (MathJax lives in tools/)
+/node_modules/
+/package.json
+/package-lock.json
+
+# decoded audio cache
+assets/audio/clips/*.__dec__.wav

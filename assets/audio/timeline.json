@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "scenes": [
+    {
+      "name": "s1_gradient_descent",
+      "title": "Gradient descent",
+      "start": 0.0,
+      "duration": 12.06,
+      "cues": [
+        {
+          "t_in": 0.85,
+          "t_out": 5.59,
+          "text": "A model learns by sliding downhill \u2014 along the steepest way down."
+        },
+        {
+          "t_in": 6.04,
+          "t_out": 10.91,
+          "text": "Its position is a set of weights. The slope it feels is the gradient."
+        }
+      ]
+    },
+    {
+      "name": "s2_neural_network",
+      "title": "The network",
+      "start": 12.06,
+      "duration": 12.69,
+      "cues": [
+        {
+          "t_in": 12.91,
+          "t_out": 17.82,
+          "text": "Each layer sums weighted inputs, then bends the result with a nonlinearity."
+        },
+        {
+          "t_in": 18.27,
+          "t_out": 23.6,
+          "text": "Stack enough of them and the network can approximate any continuous function."
+        }
+      ]
+    },
+    {
+      "name": "s3_neuron",
+      "title": "One neuron",
+      "start": 24.75,
+      "duration": 17.33,
+      "cues": [
+        {
+          "t_in": 25.6,
+          "t_out": 30.13,
+          "text": "A neuron multiplies each input by its weight, then adds them up."
+        },
+        {
+          "t_in": 30.58,
+          "t_out": 34.98,
+          "text": "Add a bias, and the result z becomes the input to an activation."
+        },
+        {
+          "t_in": 35.43,
+          "t_out": 40.93,
+          "text": "The sigmoid squeezes any number into a probability between zero and one."
+        }
+      ]
+    },
+    {
+      "name": "s4_equations",
+      "title": "The mathematics",
+      "start": 42.08,
+      "duration": 15.2,
+      "cues": [
+        {
+          "t_in": 42.93,
+          "t_out": 46.35,
+          "text": "Training minimises an average loss over the data."
+        },
+        {
+          "t_in": 46.8,
+          "t_out": 51.75,
+          "text": "Each step moves the weights against the gradient, scaled by a learning rate."
+        },
+        {
+          "t_in": 52.2,
+          "t_out": 56.13,
+          "text": "Repeat those two moves and the whole function is learned."
+        }
+      ]
+    }
+  ],
+  "total": 57.28
+}
