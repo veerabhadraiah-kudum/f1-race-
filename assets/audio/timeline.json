@@ -5,7 +5,7 @@
       "name": "s1_gradient_descent",
       "title": "Gradient descent",
       "start": 0.0,
-      "duration": 12.06,
+      "duration": 11.86,
       "cues": [
         {
           "t_in": 0.85,
@@ -22,17 +22,17 @@
     {
       "name": "s2_neural_network",
       "title": "The network",
-      "start": 12.06,
-      "duration": 12.69,
+      "start": 11.31,
+      "duration": 12.49,
       "cues": [
         {
-          "t_in": 12.91,
-          "t_out": 17.82,
+          "t_in": 12.16,
+          "t_out": 17.07,
           "text": "Each layer sums weighted inputs, then bends the result with a nonlinearity."
         },
         {
-          "t_in": 18.27,
-          "t_out": 23.6,
+          "t_in": 17.52,
+          "t_out": 22.85,
           "text": "Stack enough of them and the network can approximate any continuous function."
         }
       ]
@@ -40,22 +40,22 @@
     {
       "name": "s3_neuron",
       "title": "One neuron",
-      "start": 24.75,
-      "duration": 17.33,
+      "start": 23.25,
+      "duration": 17.13,
       "cues": [
         {
-          "t_in": 25.6,
-          "t_out": 30.13,
+          "t_in": 24.1,
+          "t_out": 28.63,
           "text": "A neuron multiplies each input by its weight, then adds them up."
         },
         {
-          "t_in": 30.58,
-          "t_out": 34.98,
+          "t_in": 29.08,
+          "t_out": 33.48,
           "text": "Add a bias, and the result z becomes the input to an activation."
         },
         {
-          "t_in": 35.43,
-          "t_out": 40.93,
+          "t_in": 33.93,
+          "t_out": 39.43,
           "text": "The sigmoid squeezes any number into a probability between zero and one."
         }
       ]
@@ -63,26 +63,27 @@
     {
       "name": "s4_equations",
       "title": "The mathematics",
-      "start": 42.08,
-      "duration": 15.2,
+      "start": 39.83,
+      "duration": 15.0,
       "cues": [
         {
-          "t_in": 42.93,
-          "t_out": 46.35,
+          "t_in": 40.68,
+          "t_out": 44.1,
           "text": "Training minimises an average loss over the data."
         },
         {
-          "t_in": 46.8,
-          "t_out": 51.75,
+          "t_in": 44.55,
+          "t_out": 49.5,
           "text": "Each step moves the weights against the gradient, scaled by a learning rate."
         },
         {
-          "t_in": 52.2,
-          "t_out": 56.13,
+          "t_in": 49.95,
+          "t_out": 53.88,
           "text": "Repeat those two moves and the whole function is learned."
         }
       ]
     }
   ],
-  "total": 57.28
+  "total": 54.83,
+  "fade": 0.55
 }

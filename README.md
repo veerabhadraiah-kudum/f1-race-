@@ -164,6 +164,38 @@ analysis, and it documents where each line belongs; remove it with
 
 ---
 
+## Scene designs
+
+### 1 · Gradient descent (11.9 s)
+A real loss surface `L(w) = ½wᵀAw + 0.25·sin(2w₁)cos(1.7w₂)` rendered as 74×60
+shaded quads with depth-sorted painter's algorithm, marching-squares contours and
+an atmospheric haze pass. Four probe particles sit on the rim, each with a `−∇L`
+arrow whose length is `‖∇L‖`; they then follow the **actual iterate sequence**
+`w ← w − η∇L(w)` (η = 0.072, 46 steps), leaving a traced path and marked steps.
+A live mono readout shows the current `w`, `L(w)` and `‖∇L‖`. Camera: one
+continuous move — high establishing dolly, drop into the basin, slow orbital
+settle — with a real spring on the reveal.
+
+### 2 · A neural network (12.5 s)
+4-5-4-2 fully connected. Nodes pop with a spring in a staggered wave, edges draw
+on with cubic Béziers, then two forward passes propagate: a pulse travels every
+edge, each node accumulates and fires **only after its incoming edges land**
+(the timing follows the graph), and a softmax read-out updates. The graph then
+shrinks into a schematic strip while the composed-function equation resolves.
+
+### 3 · One neuron (17.1 s)
+Exact arithmetic, shown step by step:
+`x = (0.20, 0.50, 0.43)`, `w = (0.40, 0.26, 0.30)`, `b = 0.10` →
+`z = 0.439` → `a = σ(0.439) = 0.6080`. Each product counts into the Σ register
+with its own bar, the bias token slides in, `z` travels into the sigmoid curve to
+the operating point, and the output node locks the value.
+
+### 4 · The mathematics (15.0 s)
+Four equations arrive in sequence; as a term highlights, a dashed leader binds it
+to the object it describes — loss surface, descent path, sigmoid curve — and the
+object is named in the term's colour. It closes on the training loop and a title
+card.
+
 ## Quality assurance
 
 `python -m engine.qa scenes.s1_gradient_descent:GradientDescent` runs two
@@ -177,14 +209,50 @@ automated gates on a scene:
 
 Visual checks are done on **rendered output**, not source: `build.py sheet`
 extracts frames from the encoded MP4 into a contact sheet, which is how the
-camera-dolly regression and the empty-frame defects were found and fixed.
+camera-dolly regression, the empty opening frame, the tofu subscripts and the
+overlapping term labels were all found and fixed.
+
+The narration gate is equally literal — `python build.py audio` prints every
+clip against its window and currently reports **10/10 fits**:
+
+```
+s1_gradient_descent      cue 1: voice  4.39s in window  4.74s  ok
+...
+```
+
+Two bugs this caught: speech clips longer than their authored windows (fixed by
+retiming the scenes, never the audio), and narration drifting early after the
+first scene because the cross-dissolves shorten the assembled timeline by
+0.55 s each (fixed by compensating the fade offsets in `build_timeline`).
 
 ---
+
+## Tests
+
+```bash
+python tests/test_engine.py        # 9 checks, ~20 s
+```
+
+Each test encodes a defect that was found by looking at rendered output:
+
+| test | defect it locks down |
+|---|---|
+| `test_warp_is_monotone_and_bounded` | retiming extrapolated past the last beat, so scene 4 showed its title card twice and scenes 1–2 dropped their closing beats |
+| `test_every_voice_clip_fits_its_cue` | 7 of 10 narration clips overran their on-screen windows |
+| `test_narration_offsets_follow_the_dissolves` | narration drifted early after scene 1 because cross-dissolves shorten the timeline |
+| `test_no_missing_glyphs` | Unicode subscripts, `ŷ`, `∇ σ ‖` rendered as tofu boxes |
+| `test_neuron_arithmetic_matches_the_screen` | the numbers on screen must be the real arithmetic |
+| `test_gradient_descent_matches_the_surface` | analytic gradient vs finite differences; every iterate must satisfy `w ← w − η∇L` |
+| `test_camera_framing_keeps_the_subject_in_frame` | auto-framing must not clip the subject |
+| `test_depth_sorting_puts_near_geometry_last` | painter's-algorithm ordering of the surface quads |
+| `test_frame_rendering_is_deterministic` | frames are a pure function of time, but consecutive frames differ (it must animate) |
 
 ## Repository layout
 
 ```
 engine/            the animation engine (see module table)
+tests/             regression tests for the defects found during the build
+scripts/           qa_all.sh, make_previews.sh
 scenes/            the four shots + generated _timing.py + retime mixin
 tools/             tex2svg.mjs (MathJax), fit_narration.py
 assets/fonts/      Inter, Fraunces, JetBrains Mono, Noto Sans Math (OFL)

@@ -44,14 +44,26 @@ class GlyphProbe:
         canvas_cls.text = text
 
     def report(self):
+        """
+        Report characters that would render as tofu.
+
+        A character is only a problem if the primary face lacks it **and** the
+        math fallback lacks it too: the renderer resolves missing glyphs from
+        the fallback chain at draw time, so a character present in Noto Sans
+        Math is fine even if Inter does not have it.
+        """
         problems = []
         for (family, weight), chars in sorted(self.used.items()):
             if family not in FAMILIES:
                 continue
             w = _nearest_weight(FAMILIES[family], weight)
-            _, tt, _, _fb = _load(family, w)
-            cmap = tt.getBestCmap()
-            missing = sorted(c for c in chars if ord(c) not in cmap and not c.isspace())
+            _, tt, _, fb = _load(family, w)
+            cmap = tt.getBestCmap() or {}
+            fb_cmap = (fb[1].getBestCmap() or {}) if fb else {}
+            missing = sorted(
+                c for c in chars
+                if not c.isspace() and ord(c) not in cmap and ord(c) not in fb_cmap
+            )
             if missing:
                 problems.append((family, w, "".join(missing)))
         return problems
